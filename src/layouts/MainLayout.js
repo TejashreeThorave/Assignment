@@ -10,7 +10,8 @@ const MainLayout = ({ children }) => {
       style={{
         flex: 1,
         paddingTop: insets.top,
-        backgroundColor: "#A3C8ED",
+        alignItems: "center",
+        paddingBottom: 40,
       }}>
       {children}
     </View>
