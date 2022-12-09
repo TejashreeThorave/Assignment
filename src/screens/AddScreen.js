@@ -1,81 +1,54 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MainLayout } from "../layouts";
-import { AppInput, AppSelect } from "../components";
-import AppButton from "../components/AppButton";
-import { launchImageLibrary } from "react-native-image-picker";
+import { FormInfo } from "../components";
+import { ScreenConstant } from "../const";
+import { BackIcon } from "../assets/images";
 
 const AddScreen = () => {
   const navigation = useNavigation();
   const [filePath, setFilePath] = useState({});
-  const [married, setMarried] = useState({ value: "1", label: "No" });
+  const [married, setMarried] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthDay, setBirthDay] = useState();
 
-  const chooseFile = (type) => {
-    let options = {
-      mediaType: type,
-      maxWidth: 300,
-      maxHeight: 550,
-      quality: 1,
-    };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        alert("User cancelled camera picker");
-        return;
-      } else if (response.errorCode == "camera_unavailable") {
-        alert("Camera not available on device");
-        return;
-      } else if (response.errorCode == "permission") {
-        alert("Permission not satisfied");
-        return;
-      } else if (response.errorCode == "others") {
-        alert(response.errorMessage);
-        return;
-      }
-      setFilePath(response);
-    });
+  const isDisabled = useMemo(
+    () => Object.values(filePath).length === 0 || !firstName || !lastName || !birthDay,
+    [filePath, firstName, lastName, birthDay],
+  );
+
+  const onSave = () => {
+    navigation.navigate(ScreenConstant.HOME);
   };
 
   return (
     <MainLayout>
       <View style={styles.container}>
-        <Text style={{ fontSize: 32, fontWeight: "bold", alignSelf: "center", marginBottom: 24 }}>
-          Add New Item
-        </Text>
-        <AppInput label={"First Name"} inputProps={{ placeholder: "Enter First Name" }} />
-        <AppInput
-          label={"Last Name"}
-          inputProps={{ placeholder: "Enter Last Name" }}
-          style={{ marginTop: 8 }}
-        />
-        <AppInput
-          label={"Date of birth"}
-          inputProps={{ placeholder: "Enter Date of birth" }}
-          style={{ marginTop: 8 }}
-        />
-        <AppSelect
-          label="Married"
-          data={[
-            { value: "0", label: "Yes" },
-            { value: "1", label: "No" },
-          ]}
-          selected={married}
-          onSelect={setMarried}
-          style={{ marginTop: 8 }}
-        />
-        <View style={{ marginTop: 8 }}>
-          <Text style={styles.textStyle}>{filePath.uri}</Text>
+        <View style={{ justifyContent: "center", marginBottom: 8 }}>
           <TouchableOpacity
-            activeOpacity={0.5}
-            style={styles.buttonStyle}
-            onPress={() => chooseFile("photo")}>
-            <Text style={styles.textStyle}>Choose Image</Text>
+            onPress={navigation.goBack}
+            style={{ position: "absolute", left: 0, width: 24 }}>
+            <Image source={BackIcon} />
           </TouchableOpacity>
+          <Text style={{ fontSize: 32, fontWeight: "bold", alignSelf: "center" }}>
+            Add New Item
+          </Text>
         </View>
-        <AppButton
-          onPress={() => {}}
-          label="Add New"
-          style={{ marginTop: 24, alignSelf: "center" }}
+        <FormInfo
+          filePath={filePath}
+          firstName={firstName}
+          lastName={lastName}
+          birthDay={birthDay}
+          married={married}
+          onSubmit={onSave}
+          onChangeFirstName={setFirstName}
+          onChangeLastName={setLastName}
+          onChangeBirthDay={setBirthDay}
+          onChangeMarried={setMarried}
+          onChangeFile={setFilePath}
+          isDisabledButton={isDisabled}
         />
       </View>
     </MainLayout>
@@ -85,6 +58,21 @@ const AddScreen = () => {
 export default AddScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: "#fff" },
-  textStyle: {},
+  container: { flex: 1, padding: 16, paddingTop: 30, width: "100%" },
+  textStyle: { color: "#fff" },
+  namePhoto: {
+    color: "blue",
+    marginRight: 8,
+    fontSize: 12,
+  },
+  buttonStyle: {
+    borderColor: "#999",
+    borderWidth: 1,
+    width: 100,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#999",
+    borderRadius: 8,
+  },
 });
