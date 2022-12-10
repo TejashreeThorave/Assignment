@@ -1,48 +1,52 @@
-import React from "react";
-import { useNavigation } from "@react-navigation/native";
-import { FlatList, Image, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { MainLayout } from "../layouts";
 import { AddIcon, DeleteIcon } from "../assets/images";
 import { ScreenConstant } from "../const";
 import CheckBox from "@react-native-community/checkbox";
-
-const DATA = [
-  {
-    id: 1,
-    firstName: "Jonny",
-    lastName: "Trasd",
-    dateOfBirth: "27/03/1890",
-    married: true,
-    photoUrl: "https://picsum.photos/200/300",
-  },
-  {
-    id: 2,
-    firstName: "Messis",
-    lastName: "Lion",
-    dateOfBirth: "27/03/2123",
-    married: true,
-    photoUrl: "https://picsum.photos/200/300",
-  },
-  {
-    id: 3,
-    firstName: "Cr7",
-    lastName: "Son",
-    dateOfBirth: "27/03/2090",
-    married: false,
-    photoUrl: "https://picsum.photos/200/300",
-  },
-  {
-    id: 4,
-    firstName: "Son",
-    lastName: "Min",
-    dateOfBirth: "27/03/2000",
-    married: true,
-    photoUrl: "https://picsum.photos/200/300",
-  },
-];
+import { collection, query, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const isFocused = useIsFocused();
+
+  let loadToDoList = async () => {
+    setLoading((loading) => !loading);
+    const q = query(collection(db, "Users"));
+
+    const querySnapshot = await getDocs(q);
+    let list = [];
+    querySnapshot.forEach((doc) => {
+      let item = doc.data();
+      item.id = doc.id;
+      list.push(item);
+    });
+
+    setData(list);
+    setLoading(false);
+  };
+
+  let deleteItem = async (id) => {
+    if (id) {
+      await deleteDoc(doc(db, "Users", id));
+      let newData = [...data].filter((item) => item.id != id);
+      setData(newData);
+    }
+  };
 
   const renderItem = ({ item }) => (
     <InfoItem
@@ -50,41 +54,66 @@ const HomeScreen = () => {
       source={item.photoUrl}
       firstName={item.firstName}
       lastName={item.lastName}
-      dateOfBirth={item.dateOfBirth}
+      dateOfBirth={item.birthDay}
       married={item.married}
+      onDeleteItem={() =>
+        Alert.alert("Delete Item", "Are you sure you want to delete?", [
+          { text: "OK", onPress: () => deleteItem(item.id) },
+        ])
+      }
     />
   );
+
+  useEffect(() => {
+    loadToDoList();
+  }, [isFocused]);
 
   return (
     <MainLayout>
       <Text style={{ color: "#1565C0", fontWeight: "700", fontSize: 40, marginTop: 18 }}>
         Main Screen
       </Text>
-      <TouchableOpacity onPress={() => navigation.navigate(ScreenConstant.ADD)} style={styles.add}>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => navigation.navigate(ScreenConstant.ADD_AND_EDIT, { type: "add" })}
+        style={styles.add}>
         <Image source={AddIcon} style={{ width: 18, height: 18 }} />
       </TouchableOpacity>
-      <FlatList
-        data={DATA}
-        style={{ width: "100%", marginTop: 16 }}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-      />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : data?.length > 0 ? (
+        <FlatList
+          data={data}
+          style={{ width: "100%", marginTop: 16 }}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
+      ) : (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={{ fontSize: 18 }}>No Data</Text>
+        </View>
+      )}
     </MainLayout>
   );
 };
 
-const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, id }) => {
+const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, onDeleteItem, id }) => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
+      activeOpacity={1}
       style={styles.infoItem}
       onPress={() => {
-        navigation.navigate(ScreenConstant.EDIT, {
+        navigation.navigate(ScreenConstant.ADD_AND_EDIT, {
+          type: "edit",
           source,
           firstName,
           lastName,
           dateOfBirth,
           married,
+          id,
         });
       }}>
       <Image source={{ uri: source }} style={styles.avatar} />
@@ -93,8 +122,15 @@ const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, id }) => 
         <Text style={{ marginBottom: 4 }}>{dateOfBirth}</Text>
         {Platform.OS === "ios" ? renderForIOS(married, true) : renderForAndroid(married, true)}
       </View>
-      <TouchableOpacity style={{ position: "absolute", right: 24 }}>
-        <Image source={DeleteIcon} style={{ height: 40, width: 40 }} />
+      <TouchableOpacity
+        style={{ position: "absolute", right: 24 }}
+        onPress={onDeleteItem}
+        activeOpacity={1}>
+        <Image
+          source={DeleteIcon}
+          style={{ height: 40, width: 40 }}
+          onBlur={() => console.log("")}
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );
