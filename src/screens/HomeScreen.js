@@ -23,16 +23,21 @@ const HomeScreen = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
+  const [userId, setUserId] = useState();
 
   let loadToDoList = async () => {
     setLoading((loading) => !loading);
     const q = query(collection(db, "Users"));
 
     const querySnapshot = await getDocs(q);
+
     let list = [];
     querySnapshot.forEach((doc) => {
       let item = doc.data();
-      item.id = doc.id;
+      if (!userId || item.id > userId) {
+        setUserId(item.id);
+      }
+      item.docId = doc.id;
       list.push(item);
     });
 
@@ -40,25 +45,26 @@ const HomeScreen = () => {
     setLoading(false);
   };
 
-  let deleteItem = async (id) => {
-    if (id) {
-      await deleteDoc(doc(db, "Users", id));
-      let newData = [...data].filter((item) => item.id != id);
+  let deleteItem = async (idx) => {
+    if (idx) {
+      await deleteDoc(doc(db, "Users", idx));
+      let newData = [...data].filter((item) => item.docId != idx);
       setData(newData);
     }
   };
 
   const renderItem = ({ item }) => (
     <InfoItem
-      id={item.id}
+      id={item.docId}
       source={item.photoUrl}
       firstName={item.firstName}
       lastName={item.lastName}
       dateOfBirth={item.birthDay}
       married={item.married}
+      userId={item.id}
       onDeleteItem={() =>
         Alert.alert("Delete Item", "Are you sure you want to delete?", [
-          { text: "OK", onPress: () => deleteItem(item.id) },
+          { text: "OK", onPress: () => deleteItem(item.docId) },
         ])
       }
     />
@@ -81,7 +87,7 @@ const HomeScreen = () => {
         <Text style={{ color: "#1565C0", fontWeight: "700", fontSize: 40 }}>Main Screen</Text>
         <TouchableOpacity
           activeOpacity={1}
-          onPress={() => navigation.navigate(ScreenConstant.ADD_AND_EDIT, { type: "add" })}
+          onPress={() => navigation.navigate(ScreenConstant.ADD_AND_EDIT, { type: "add", userId })}
           style={styles.add}>
           <Image source={AddIcon} style={{ width: 18, height: 18 }} />
         </TouchableOpacity>
@@ -96,7 +102,7 @@ const HomeScreen = () => {
           data={data}
           style={{ width: "100%", marginTop: 16 }}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.docId}
         />
       ) : (
         <View style={{ flex: 1, justifyContent: "center" }}>
@@ -107,7 +113,16 @@ const HomeScreen = () => {
   );
 };
 
-const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, onDeleteItem, id }) => {
+const InfoItem = ({
+  source,
+  firstName,
+  lastName,
+  dateOfBirth,
+  married,
+  onDeleteItem,
+  id,
+  userId,
+}) => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
@@ -121,7 +136,8 @@ const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, onDeleteI
           lastName,
           dateOfBirth,
           married,
-          id,
+          docId: id,
+          userId,
         });
       }}>
       <Image source={{ uri: source }} style={styles.avatar} />

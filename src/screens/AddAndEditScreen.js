@@ -7,7 +7,6 @@ import { ScreenConstant } from "../const";
 import { BackIcon } from "../assets/images";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import { uploadImage } from "../ultils";
 
 const AddAndEditScreen = () => {
   const navigation = useNavigation();
@@ -18,7 +17,7 @@ const AddAndEditScreen = () => {
   const [firstName, setFirstName] = useState(params?.firstName ?? "");
   const [lastName, setLastName] = useState(params?.lastName ?? "");
   const [birthDay, setBirthDay] = useState(params?.dateOfBirth ?? "");
-
+  console.log({ params });
   const isDisabled = useMemo(
     () => Object.values(filePath).length === 0 || !firstName || !lastName || !birthDay,
     [filePath, firstName, lastName, birthDay],
@@ -37,6 +36,7 @@ const AddAndEditScreen = () => {
 
       if (imageUrl) {
         const newData = {
+          id: params.userId && params?.type === "add" ? params.userId + 1 : params.userId,
           firstName,
           lastName,
           birthDay,
@@ -56,7 +56,7 @@ const AddAndEditScreen = () => {
               ]);
             });
         } else {
-          const washingtonRef = doc(db, "Users", params.id);
+          const washingtonRef = doc(db, "Users", params.docId);
           updateDoc(washingtonRef, newData).then(() => {
             Alert.alert("Post published!", "Your edit has been published Successfully!", [
               { text: "OK", onPress: () => navigation.navigate(ScreenConstant.HOME) },
