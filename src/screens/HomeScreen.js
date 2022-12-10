@@ -43,6 +43,7 @@ const DATA = [
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+
   const renderItem = ({ item }) => (
     <InfoItem
       id={item.id}

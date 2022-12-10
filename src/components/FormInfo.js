@@ -72,14 +72,14 @@ const FormInfo = ({
           onPress={() => chooseFile("photo")}>
           <Text style={styles.textStyle}>Upload Photo</Text>
         </TouchableOpacity>
-        {filePath.assets?.[0]?.fileName && (
+        {filePath && (
           <View
             style={{
               flexDirection: "row",
               alignItems: "center",
               marginTop: 4,
             }}>
-            <Text style={styles.namePhoto}>{filePath.assets[0].fileName}</Text>
+            <Text style={styles.namePhoto}>{filePath}</Text>
             <TouchableOpacity
               onPress={() => {
                 onChangeFile({});

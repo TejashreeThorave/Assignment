@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@react-native-community/checkbox": "^0.5.14",
+    "@react-native-firebase/app": "^16.4.6",
+    "@react-native-firebase/firestore": "^16.4.6",
     "@react-navigation/native": "^6.1.0",
     "@react-navigation/native-stack": "^6.9.5",
     "babel-plugin-module-resolver": "^4.1.0",

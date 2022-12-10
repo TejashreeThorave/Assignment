@@ -38,7 +38,7 @@ const EditScreen = () => {
           <Text style={{ fontSize: 32, fontWeight: "bold", alignSelf: "center" }}>Edit Item</Text>
         </View>
         <FormInfo
-          filePath={filePathEdit}
+          filePath={filePathEdit.assets[0].fileName}
           firstName={firstNameEdit}
           lastName={lastNameEdit}
           birthDay={birthDayEdit}

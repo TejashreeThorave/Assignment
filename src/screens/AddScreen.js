@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react";
+import React, { useId, useMemo, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { MainLayout } from "../layouts";
 import { FormInfo } from "../components";
 import { ScreenConstant } from "../const";
 import { BackIcon } from "../assets/images";
+import storage from "@react-native-firebase/storage";
 
 const AddScreen = () => {
   const navigation = useNavigation();
@@ -14,13 +15,63 @@ const AddScreen = () => {
   const [lastName, setLastName] = useState("");
   const [birthDay, setBirthDay] = useState();
 
+  const id = useId();
+
   const isDisabled = useMemo(
     () => Object.values(filePath).length === 0 || !firstName || !lastName || !birthDay,
     [filePath, firstName, lastName, birthDay],
   );
 
-  const onSave = () => {
-    navigation.navigate(ScreenConstant.HOME);
+  const onSave = async () => {
+    const imageUrl = await uploadImage();
+    firestore()
+      .collection("Users")
+      .add({
+        id,
+        firstName,
+        lastName,
+        birthDay,
+        married,
+        photoUrl: imageUrl,
+        createTime: firestore.Timestamp.fromDate(new Date()),
+      })
+      .then(() => {
+        Alert.alert("Post published!", "Your post has been published Successfully!");
+        setPost(null);
+      })
+      .catch((error) => {
+        Alert.alert("Something went wrong with added item");
+        console.log("Something went wrong with added post to firestore.", error);
+      })
+      .finally(() => {
+        navigation.navigate(ScreenConstant.HOME);
+      });
+  };
+
+  const uploadImage = async () => {
+    if (filePath.assets[0].uri == null) {
+      return null;
+    }
+    const uploadUri = filePath.assets[0].uri;
+    let filename = uploadUri.substring(uploadUri.lastIndexOf("/") + 1);
+
+    // Add timestamp to File Name
+    const extension = filename.split(".").pop();
+    const name = filename.split(".").slice(0, -1).join(".");
+    filename = name + Date.now() + "." + extension;
+
+    const storageRef = storage().ref(`photos/${filename}`);
+    const task = storageRef.putFile(uploadUri);
+
+    try {
+      await task;
+      const url = await storageRef.getDownloadURL();
+      setFilePath({});
+      return url;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   };
 
   return (
@@ -37,7 +88,7 @@ const AddScreen = () => {
           </Text>
         </View>
         <FormInfo
-          filePath={filePath}
+          filePath={filePath.assets?.[0]?.fileName ?? ""}
           firstName={firstName}
           lastName={lastName}
           birthDay={birthDay}
