@@ -81,7 +81,7 @@ const AddAndEditScreen = () => {
             style={{ position: "absolute", left: 0, width: 24 }}>
             <Image source={BackIcon} />
           </TouchableOpacity>
-          <Text style={{ fontSize: 32, fontWeight: "bold", alignSelf: "center" }}>
+          <Text style={{ fontSize: 32, fontWeight: "bold", alignSelf: "center", color: "#000" }}>
             {params?.type === "add" ? "Add New Item" : "Edit Item"}
           </Text>
         </View>

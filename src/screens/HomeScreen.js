@@ -70,15 +70,23 @@ const HomeScreen = () => {
 
   return (
     <MainLayout>
-      <Text style={{ color: "#1565C0", fontWeight: "700", fontSize: 40, marginTop: 18 }}>
-        Main Screen
-      </Text>
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={() => navigation.navigate(ScreenConstant.ADD_AND_EDIT, { type: "add" })}
-        style={styles.add}>
-        <Image source={AddIcon} style={{ width: 18, height: 18 }} />
-      </TouchableOpacity>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          width: "100%",
+          justifyContent: "center",
+          marginTop: 18,
+        }}>
+        <Text style={{ color: "#1565C0", fontWeight: "700", fontSize: 40 }}>Main Screen</Text>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => navigation.navigate(ScreenConstant.ADD_AND_EDIT, { type: "add" })}
+          style={styles.add}>
+          <Image source={AddIcon} style={{ width: 18, height: 18 }} />
+        </TouchableOpacity>
+      </View>
+
       {loading ? (
         <View style={{ flex: 1, justifyContent: "center" }}>
           <ActivityIndicator size="large" />
@@ -118,7 +126,12 @@ const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, onDeleteI
       }}>
       <Image source={{ uri: source }} style={styles.avatar} />
       <View>
-        <Text style={{ fontWeight: "700", marginBottom: 4 }}>{`${firstName} ${lastName}`}</Text>
+        <Text
+          style={{
+            fontWeight: "700",
+            marginBottom: 4,
+            color: "#000",
+          }}>{`${firstName} ${lastName}`}</Text>
         <Text style={{ marginBottom: 4 }}>{dateOfBirth}</Text>
         {Platform.OS === "ios" ? renderForIOS(married, true) : renderForAndroid(married, true)}
       </View>
@@ -139,7 +152,7 @@ const InfoItem = ({ source, firstName, lastName, dateOfBirth, married, onDeleteI
 export function renderForIOS(value, disabled, onValueChange) {
   return (
     <View style={styles.container}>
-      <Text style={{ marginRight: 8 }}>Married</Text>
+      <Text style={{ marginRight: 8, color: "#000" }}>Married</Text>
       <View style={styles.checkbox}>
         <CheckBox
           value={value}
@@ -156,7 +169,7 @@ export function renderForIOS(value, disabled, onValueChange) {
 export function renderForAndroid(value, disabled, onValueChange) {
   return (
     <View style={styles.container}>
-      <Text style={{ marginRight: 8 }}>Married</Text>
+      <Text style={{ marginRight: 8, color: "#000" }}>Married</Text>
       <CheckBox value={value} onValueChange={onValueChange} disabled={disabled} />
     </View>
   );
@@ -205,6 +218,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     position: "absolute",
     right: 16,
-    top: 70,
   },
 });
