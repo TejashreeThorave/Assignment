@@ -64,6 +64,12 @@ const HomeScreen = () => {
       userId={item.id}
       onDeleteItem={() =>
         Alert.alert("Delete Item", "Are you sure you want to delete?", [
+          {
+            text: "Cancel",
+            onPress: () => {
+              console.log("Cancel Delete");
+            },
+          },
           { text: "OK", onPress: () => deleteItem(item.docId) },
         ])
       }
@@ -124,6 +130,7 @@ const InfoItem = ({
   userId,
 }) => {
   const navigation = useNavigation();
+
   return (
     <TouchableOpacity
       activeOpacity={1}
@@ -141,6 +148,7 @@ const InfoItem = ({
         });
       }}>
       <Image source={{ uri: source }} style={styles.avatar} />
+
       <View>
         <Text
           style={{
@@ -218,7 +226,6 @@ const styles = StyleSheet.create({
     borderColor: "#999",
     borderWidth: 1.5,
     marginRight: 24,
-    backgroundColor: "#A3C8ED",
   },
   add: {
     flexDirection: "row",
