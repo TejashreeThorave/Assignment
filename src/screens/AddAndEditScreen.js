@@ -7,6 +7,7 @@ import { ScreenConstant } from "../const";
 import { BackIcon } from "../assets/images";
 import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { uploadImage } from "../ultils";
 
 const AddAndEditScreen = () => {
   const navigation = useNavigation();
@@ -17,21 +18,22 @@ const AddAndEditScreen = () => {
   const [firstName, setFirstName] = useState(params?.firstName ?? "");
   const [lastName, setLastName] = useState(params?.lastName ?? "");
   const [birthDay, setBirthDay] = useState(params?.dateOfBirth ?? "");
+  const [loading, setLoading] = useState(false);
 
   const isDisabled = useMemo(
-    () => Object.values(filePath).length === 0 || !firstName || !lastName || !birthDay,
-    [filePath, firstName, lastName, birthDay],
+    () => Object.values(filePath).length === 0 || !firstName || !lastName || !birthDay || loading,
+    [filePath, firstName, lastName, birthDay, loading],
   );
 
   const onSave = async () => {
     try {
+      setLoading(true);
       let imageUrl = filePath;
 
       if (typeof filePath === "object") {
-        imageUrl = filePath.assets[0].uri;
-        //   imageUrl = await uploadImage(filePath.assets[0].uri, () =>
-        //     navigation.navigate(ScreenConstant.HOME),
-        //   );
+        imageUrl = await uploadImage(filePath.assets[0].uri, () =>
+          navigation.navigate(ScreenConstant.HOME),
+        );
       }
 
       if (imageUrl) {
@@ -63,8 +65,10 @@ const AddAndEditScreen = () => {
             ]);
           });
         }
+        setLoading(false);
       }
     } catch (error) {
+      setLoading(false);
       console.log(error);
       Alert.alert("Error", "Something went wrong with added item", [
         { text: "OK", onPress: () => navigation.navigate(ScreenConstant.HOME) },
@@ -86,7 +90,7 @@ const AddAndEditScreen = () => {
           </Text>
         </View>
         <FormInfo
-          filePath={filePath.assets?.[0]?.fileName ?? ""}
+          filePath={typeof filePath === "object" ? filePath.assets?.[0]?.fileName ?? "" : filePath}
           firstName={firstName}
           lastName={lastName}
           birthDay={birthDay}
