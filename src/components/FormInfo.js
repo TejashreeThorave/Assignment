@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Image, Keyboard, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Keyboard,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native";
 import { launchImageLibrary } from "react-native-image-picker";
 import { RemoveIcon } from "../assets/images";
 import { renderForAndroid, renderForIOS } from "../screens/HomeScreen";

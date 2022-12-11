@@ -23,7 +23,7 @@ const HomeScreen = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const isFocused = useIsFocused();
-  const [userId, setUserId] = useState();
+  const [userId, setUserId] = useState(1);
 
   let loadToDoList = async () => {
     setLoading((loading) => !loading);
@@ -34,8 +34,8 @@ const HomeScreen = () => {
     let list = [];
     querySnapshot.forEach((doc) => {
       let item = doc.data();
-      if (!userId || item.id > userId) {
-        setUserId(item.id);
+      if (item.id >= userId) {
+        setUserId(item.id + 1);
       }
       item.docId = doc.id;
       list.push(item);

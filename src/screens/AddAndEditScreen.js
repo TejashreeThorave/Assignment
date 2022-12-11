@@ -36,7 +36,7 @@ const AddAndEditScreen = () => {
 
       if (imageUrl) {
         const newData = {
-          id: params.userId && params?.type === "add" ? params.userId + 1 : params.userId,
+          id: params?.userId,
           firstName,
           lastName,
           birthDay,
