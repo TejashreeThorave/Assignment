@@ -155,11 +155,7 @@ const InfoItem = ({
         style={{ position: "absolute", right: 24 }}
         onPress={onDeleteItem}
         activeOpacity={1}>
-        <Image
-          source={DeleteIcon}
-          style={{ height: 40, width: 40 }}
-          onBlur={() => console.log("")}
-        />
+        <Image source={DeleteIcon} style={{ height: 40, width: 40 }} />
       </TouchableOpacity>
     </TouchableOpacity>
   );

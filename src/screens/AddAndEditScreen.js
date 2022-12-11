@@ -17,7 +17,7 @@ const AddAndEditScreen = () => {
   const [firstName, setFirstName] = useState(params?.firstName ?? "");
   const [lastName, setLastName] = useState(params?.lastName ?? "");
   const [birthDay, setBirthDay] = useState(params?.dateOfBirth ?? "");
-  console.log({ params });
+
   const isDisabled = useMemo(
     () => Object.values(filePath).length === 0 || !firstName || !lastName || !birthDay,
     [filePath, firstName, lastName, birthDay],
