@@ -1,5 +1,4 @@
 import HomeScreen from "./HomeScreen";
-import AddScreen from "./AddScreen";
-import EditScreen from "./EditScreen";
+import AddAndEditScreen from "./AddAndEditScreen";
 
-export { HomeScreen, AddScreen, EditScreen };
+export { HomeScreen, AddAndEditScreen };

@@ -1,3 +1,2 @@
 export const HOME = "HOME";
-export const ADD = "ADD";
-export const EDIT = "EDIT";
+export const ADD_AND_EDIT = "ADD_AND_EDIT";

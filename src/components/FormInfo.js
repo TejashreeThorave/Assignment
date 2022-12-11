@@ -1,10 +1,13 @@
-import React from "react";
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Image, Keyboard, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { launchImageLibrary } from "react-native-image-picker";
 import { RemoveIcon } from "../assets/images";
 import { renderForAndroid, renderForIOS } from "../screens/HomeScreen";
 import AppButton from "./AppButton";
 import AppInput from "./AppInput";
+import DatePicker from "react-native-date-picker";
+import { format } from "date-fns";
+import { useIsFocused } from "@react-navigation/native";
 
 const FormInfo = ({
   filePath,
@@ -20,6 +23,9 @@ const FormInfo = ({
   onChangeFile,
   isDisabledButton,
 }) => {
+  const [open, setOpen] = useState(false);
+  const isFocused = useIsFocused();
+
   const chooseFile = (type) => {
     let options = {
       mediaType: type,
@@ -27,21 +33,27 @@ const FormInfo = ({
     };
     launchImageLibrary(options, (response) => {
       if (response.didCancel) {
-        alert("User cancelled camera picker");
+        Alert.alert("User cancelled camera picker");
         return;
       } else if (response.errorCode == "camera_unavailable") {
-        alert("Camera not available on device");
+        Alert.alert("Camera not available on device");
         return;
       } else if (response.errorCode == "permission") {
-        alert("Permission not satisfied");
+        Alert.alert("Permission not satisfied");
         return;
       } else if (response.errorCode == "others") {
-        alert(response.errorMessage);
+        Alert.alert(response.errorMessage);
         return;
       }
       onChangeFile(response);
     });
   };
+
+  useEffect(() => {
+    if (!isFocused) {
+      setOpen(false);
+    }
+  }, [isFocused]);
 
   return (
     <>
@@ -56,9 +68,28 @@ const FormInfo = ({
         onChangeValue={onChangeLastName}
       />
       <AppInput
-        inputProps={{ placeholder: "Enter Date of birth" }}
+        inputProps={{ placeholder: "Enter Date of birth", editable: false }}
         value={birthDay}
         onChangeValue={onChangeBirthDay}
+        onPress={() => {
+          setOpen(true);
+        }}
+      />
+      <DatePicker
+        modal
+        mode="date"
+        open={open}
+        date={Boolean(birthDay) ? new Date(birthDay) : new Date()}
+        onConfirm={(date) => {
+          Keyboard.dismiss();
+          setOpen(false);
+          const formattedDate = format(new Date(date), "yyyy-MM-dd");
+          onChangeBirthDay(formattedDate);
+        }}
+        onCancel={() => {
+          Keyboard.dismiss();
+          setOpen(false);
+        }}
       />
       <View style={{ alignSelf: "flex-start", marginTop: 18 }}>
         {Platform.OS === "ios"
@@ -72,14 +103,14 @@ const FormInfo = ({
           onPress={() => chooseFile("photo")}>
           <Text style={styles.textStyle}>Upload Photo</Text>
         </TouchableOpacity>
-        {filePath.assets?.[0]?.fileName && (
+        {filePath && (
           <View
             style={{
               flexDirection: "row",
               alignItems: "center",
               marginTop: 4,
             }}>
-            <Text style={styles.namePhoto}>{filePath.assets[0].fileName}</Text>
+            <Text style={styles.namePhoto}>{filePath}</Text>
             <TouchableOpacity
               onPress={() => {
                 onChangeFile({});

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 
 const AppInput = ({
   label,
@@ -14,6 +14,7 @@ const AppInput = ({
   style,
   onChangeValue,
   isHiddenErrorMessage,
+  onPress,
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
@@ -23,7 +24,11 @@ const AppInput = ({
         <Text style={[styles.label, labelTypes]}>{label}</Text>
         {isRequire && <Text style={{ color: "red" }}>*</Text>}
       </View>
-      <View
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => {
+          Boolean(onPress) && onPress();
+        }}
         style={[
           styles.inputContainer,
           inputContainerType,
@@ -42,9 +47,10 @@ const AppInput = ({
           style={[styles.input, inputType]}
           onChangeText={onChangeValue}
           value={value}
+          pointerEvents={Boolean(onPress) && "none"}
           {...inputProps}
         />
-      </View>
+      </TouchableOpacity>
       {Boolean(error) && isHiddenErrorMessage && (
         <Text style={{ marginTop: 7, color: "red", fontSize: 12 }}>{error}</Text>
       )}
@@ -78,6 +84,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 12,
     fontSize: 16,
+    borderRadius: 10,
   },
 });
 
